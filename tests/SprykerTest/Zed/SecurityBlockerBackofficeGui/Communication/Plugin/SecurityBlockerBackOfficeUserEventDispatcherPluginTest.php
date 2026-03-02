@@ -39,9 +39,6 @@ class SecurityBlockerBackOfficeUserEventDispatcherPluginTest extends Unit
      */
     protected SecurityBlockerBackofficeUserEventDispatcherPlugin $securityBlockerBackOfficeUserEventDispatcherPlugin;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -57,9 +54,6 @@ class SecurityBlockerBackOfficeUserEventDispatcherPluginTest extends Unit
         $this->securityBlockerBackOfficeUserEventDispatcherPlugin->setFactory($securityBlockerBackofficeGuiFactoryMock);
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventDispatcherPluginShouldCallAddSubscriberOnEventDispatcher(): void
     {
         // Arrange

@@ -22,9 +22,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class SecurityBlockerBackofficeGuiCommunicationFactory extends AbstractCommunicationFactory
 {
-    /**
-     * @return \Symfony\Component\EventDispatcher\EventSubscriberInterface
-     */
     public function createSecurityBlockerBackOfficeUserEventSubscriber(): EventSubscriberInterface
     {
         return new SecurityBlockerBackofficeUserEventSubscriber(
@@ -35,9 +32,6 @@ class SecurityBlockerBackofficeGuiCommunicationFactory extends AbstractCommunica
         );
     }
 
-    /**
-     * @return \Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\MessageBuilderInterface
-     */
     public function createMessageBuilder(): MessageBuilderInterface
     {
         return new MessageBuilder(
@@ -45,25 +39,16 @@ class SecurityBlockerBackofficeGuiCommunicationFactory extends AbstractCommunica
         );
     }
 
-    /**
-     * @return \Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Client\SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface
-     */
     public function getSecurityBlockerClient(): SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface
     {
         return $this->getProvidedDependency(SecurityBlockerBackofficeGuiDependencyProvider::CLIENT_SECURITY_BLOCKER);
     }
 
-    /**
-     * @return \Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Facade\SecurityBlockerBackofficeGuiToGlossaryFacadeInterface
-     */
     public function getGlossaryFacade(): SecurityBlockerBackofficeGuiToGlossaryFacadeInterface
     {
         return $this->getProvidedDependency(SecurityBlockerBackofficeGuiDependencyProvider::FACADE_GLOSSARY);
     }
 
-    /**
-     * @return \Symfony\Component\HttpFoundation\RequestStack
-     */
     public function getRequestStack(): RequestStack
     {
         return $this->getProvidedDependency(SecurityBlockerBackofficeGuiDependencyProvider::SERVICE_REQUEST_STACK);

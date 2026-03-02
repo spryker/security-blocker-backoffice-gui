@@ -71,9 +71,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
      */
     protected RequestStack $requestStackMock;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -83,9 +80,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $this->subscriber = $this->createSecurityBlockerBackOfficeUserEventSubscriber();
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventSubscriberShouldCallSecurityBlockerClientOnKernelRequestWhileSendingValidLoginAttempt(): void
     {
         // Arrange
@@ -105,9 +99,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $eventDispatcher->dispatch($event, KernelEvents::REQUEST);
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventSubscriberShouldThrowHttpExceptionOnKernelRequestWhileSendingBlockedLoginAttempt(): void
     {
         // Arrange
@@ -128,9 +119,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $eventDispatcher->dispatch($event, KernelEvents::REQUEST);
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventSubscriberShouldNotCallSecurityBlockerClientWhileSendingWrongRequest(): void
     {
         // Arrange
@@ -150,9 +138,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $eventDispatcher->dispatch($event, KernelEvents::REQUEST);
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventSubscriberShouldReturnSecurityBlockerClientExceptionWhileFailedLoginAttempt(): void
     {
         // Arrange
@@ -173,9 +158,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $eventDispatcher->dispatch($event, LoginFailureEvent::class);
     }
 
-    /**
-     * @return void
-     */
     public function testSecurityBlockerBackOfficeUserEventSubscriberShouldNotCallSecurityBlockerClientWhileSendingValidGetRequest(): void
     {
         // Arrange
@@ -196,12 +178,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $eventDispatcher->dispatch($event, LoginFailureEvent::class);
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer
-     * @param string $requestMethod
-     *
-     * @return \Symfony\Component\HttpKernel\Event\RequestEvent
-     */
     protected function createRequestEventForMethod(
         SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer,
         string $requestMethod
@@ -228,9 +204,6 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         return $this->createMock(SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface::class);
     }
 
-    /**
-     * @return \Spryker\Zed\SecurityBlockerBackofficeGui\Communication\EventSubscriber\SecurityBlockerBackofficeUserEventSubscriber
-     */
     protected function createSecurityBlockerBackOfficeUserEventSubscriber(): SecurityBlockerBackofficeUserEventSubscriber
     {
         return new SecurityBlockerBackofficeUserEventSubscriber(

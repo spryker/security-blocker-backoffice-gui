@@ -27,19 +27,11 @@ class MessageBuilder implements MessageBuilderInterface
      */
     protected SecurityBlockerBackofficeGuiToGlossaryFacadeInterface $glossaryFacade;
 
-    /**
-     * @param \Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Facade\SecurityBlockerBackofficeGuiToGlossaryFacadeInterface $glossaryFacade
-     */
     public function __construct(SecurityBlockerBackofficeGuiToGlossaryFacadeInterface $glossaryFacade)
     {
         $this->glossaryFacade = $glossaryFacade;
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\SecurityCheckAuthResponseTransfer $securityCheckAuthResponseTransfer
-     *
-     * @return string
-     */
     public function getExceptionMessage(SecurityCheckAuthResponseTransfer $securityCheckAuthResponseTransfer): string
     {
         return $this->glossaryFacade->translate(
@@ -48,11 +40,6 @@ class MessageBuilder implements MessageBuilderInterface
         );
     }
 
-    /**
-     * @param \Generated\Shared\Transfer\SecurityCheckAuthResponseTransfer $securityCheckAuthResponseTransfer
-     *
-     * @return string
-     */
     protected function convertSecondsToReadableTime(
         SecurityCheckAuthResponseTransfer $securityCheckAuthResponseTransfer
     ): string {

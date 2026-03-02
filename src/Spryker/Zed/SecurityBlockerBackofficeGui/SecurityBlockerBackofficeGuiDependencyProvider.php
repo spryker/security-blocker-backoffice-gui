@@ -34,11 +34,6 @@ class SecurityBlockerBackofficeGuiDependencyProvider extends AbstractBundleDepen
      */
     public const SERVICE_REQUEST_STACK = 'request_stack';
 
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
     public function provideCommunicationLayerDependencies(Container $container): Container
     {
         $container = parent::provideCommunicationLayerDependencies($container);
@@ -49,11 +44,6 @@ class SecurityBlockerBackofficeGuiDependencyProvider extends AbstractBundleDepen
         return $container;
     }
 
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
     protected function addSecurityBlockerClient(Container $container): Container
     {
         $container->set(static::CLIENT_SECURITY_BLOCKER, function (Container $container) {
@@ -65,11 +55,6 @@ class SecurityBlockerBackofficeGuiDependencyProvider extends AbstractBundleDepen
         return $container;
     }
 
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
     protected function addGlossaryFacade(Container $container): Container
     {
         $container->set(static::FACADE_GLOSSARY, function (Container $container) {
@@ -81,11 +66,6 @@ class SecurityBlockerBackofficeGuiDependencyProvider extends AbstractBundleDepen
         return $container;
     }
 
-    /**
-     * @param \Spryker\Zed\Kernel\Container $container
-     *
-     * @return \Spryker\Zed\Kernel\Container
-     */
     protected function addRequestStack(Container $container): Container
     {
         $container->set(static::SERVICE_REQUEST_STACK, function (Container $container) {
