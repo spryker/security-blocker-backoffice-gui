@@ -185,7 +185,7 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
         $kernel = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
         $request = $this->tester->createRequest($requestMethod, $securityCheckAuthContextTransfer);
 
-        return new RequestEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST);
+        return new RequestEvent($kernel, $request, $this->getMainRequestType());
     }
 
     /**
@@ -218,5 +218,10 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
                 ],
             ),
         );
+    }
+
+    protected function getMainRequestType(): int
+    {
+        return HttpKernelInterface::MAIN_REQUEST;
     }
 }
