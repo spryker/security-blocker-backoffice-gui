@@ -52,13 +52,12 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
     protected const LOGIN_CHECK_URL = '/login_check';
 
     /**
-     * @var \SprykerTest\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiCommunicationTester
+     * @uses \Spryker\Zed\Captcha\Communication\EventSubscriber\LoginCaptchaEventSubscriber::KERNEL_REQUEST_SUBSCRIBER_PRIORITY
      */
+    protected const int CAPTCHA_SUBSCRIBER_PRIORITY = 10;
+
     protected SecurityBlockerBackofficeGuiCommunicationTester $tester;
 
-    /**
-     * @var \Spryker\Zed\SecurityBlockerBackofficeGui\Communication\EventSubscriber\SecurityBlockerBackofficeUserEventSubscriber
-     */
     protected SecurityBlockerBackofficeUserEventSubscriber $subscriber;
 
     /**
@@ -70,6 +69,20 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
      * @var \PHPUnit\Framework\MockObject\MockObject|\Symfony\Component\HttpFoundation\RequestStack
      */
     protected RequestStack $requestStackMock;
+
+    public function testBlockedLoginAttemptIsRejectedBeforeItsCaptchaIsVerified(): void
+    {
+        // Arrange
+        $securityCheckAuthContextTransfer = $this->tester->createSecurityCheckAuthContextTransfer(static::BACK_OFFICE_USER_TYPE);
+        $this->securityBlockerClientMock->method('isAccountBlocked')->willReturn((new SecurityCheckAuthResponseTransfer())->setIsBlocked(true));
+        $eventDispatcher = $this->createEventDispatcherWithFailingCaptchaListener();
+
+        // Assert
+        $this->expectException(HttpException::class);
+
+        // Act
+        $eventDispatcher->dispatch($this->createRequestEventForMethod($securityCheckAuthContextTransfer, Request::METHOD_POST), KernelEvents::REQUEST);
+    }
 
     protected function setUp(): void
     {
@@ -215,6 +228,7 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
                 [
                     'getBackofficeUserLoginCheckUrl' => static::LOGIN_CHECK_URL,
                     'getSecurityBlockerBackofficeUserEntityType' => static::BACK_OFFICE_USER_TYPE,
+                    'getIpCounterKeyStrategy' => SecurityBlockerBackofficeGuiConfig::IP_COUNTER_KEY_STRATEGY_IP,
                 ],
             ),
         );
@@ -223,5 +237,16 @@ class SecurityBlockerBackOfficeUserEventSubscriberTest extends Unit
     protected function getMainRequestType(): int
     {
         return HttpKernelInterface::MAIN_REQUEST;
+    }
+
+    protected function createEventDispatcherWithFailingCaptchaListener(): EventDispatcher
+    {
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addSubscriber($this->subscriber);
+        $eventDispatcher->addListener(KernelEvents::REQUEST, function (): void {
+            $this->fail('The CAPTCHA was verified before the blocked login attempt was rejected.');
+        }, static::CAPTCHA_SUBSCRIBER_PRIORITY);
+
+        return $eventDispatcher;
     }
 }

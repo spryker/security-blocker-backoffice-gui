@@ -9,6 +9,7 @@ namespace SprykerTest\Zed\SecurityBlockerBackofficeGui;
 
 use Codeception\Actor;
 use Generated\Shared\Transfer\SecurityCheckAuthContextTransfer;
+use Spryker\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiConfig;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -46,6 +47,13 @@ class SecurityBlockerBackofficeGuiCommunicationTester extends Actor
     protected const FIELD_USERNAME = 'username';
 
     /**
+     * @uses \Spryker\Shared\SecurityBlockerBackoffice\SecurityBlockerBackofficeConfig::LOGIN_REALM_USER
+     */
+    public const string LOGIN_REALM_USER = 'user';
+
+    public const string LOGIN_IDENTIFIER = 'admin@spryker.com';
+
+    /**
      * @uses \Spryker\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiConfig::BACK_OFFICE_LOGIN_CHECK_URL
      *
      * @var string
@@ -54,25 +62,47 @@ class SecurityBlockerBackofficeGuiCommunicationTester extends Actor
 
     public function createSecurityCheckAuthContextTransfer(string $type): SecurityCheckAuthContextTransfer
     {
+        // The subscribers always set the submitted username, null when the request has none.
         return (new SecurityCheckAuthContextTransfer())
             ->setType($type)
-            ->setIp('');
+            ->setIp('')
+            ->setLoginIdentifier(null)
+            ->setIpCounterKeyStrategy(SecurityBlockerBackofficeGuiConfig::IP_COUNTER_KEY_STRATEGY_IP);
+    }
+
+    public function createLoginSecurityCheckAuthContextTransfer(string $type): SecurityCheckAuthContextTransfer
+    {
+        return $this->createSecurityCheckAuthContextTransfer($type)
+            ->setRealm(static::LOGIN_REALM_USER)
+            ->setLoginIdentifier(static::LOGIN_IDENTIFIER);
     }
 
     public function createRequest(string $method, SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): Request
     {
+        return $this->createLoginCheckRequest($method, $securityCheckAuthContextTransfer->getAccount(), $securityCheckAuthContextTransfer->getIp());
+    }
+
+    public function createLoginRequest(
+        string $method,
+        SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer
+    ): Request {
+        return $this->createLoginCheckRequest($method, $securityCheckAuthContextTransfer->getLoginIdentifier(), $securityCheckAuthContextTransfer->getIp());
+    }
+
+    protected function createLoginCheckRequest(string $method, ?string $username, ?string $ip): Request
+    {
+        $loginForm = [static::FIELD_USERNAME => $username];
+
         $request = Request::create(
             '/' . static::BACK_OFFICE_LOGIN_CHECK_URL,
             $method,
             [
-                static::FORM_NAME => [
-                    static::FIELD_USERNAME => $securityCheckAuthContextTransfer->getAccount(),
-                ],
+                static::FORM_NAME => $loginForm,
             ],
             [],
             [],
             [
-                'REMOTE_ADDR' => $securityCheckAuthContextTransfer->getIp(),
+                'REMOTE_ADDR' => $ip,
             ],
         );
         $request->attributes->add(['_route' => '/' . static::BACK_OFFICE_LOGIN_CHECK_URL]);

@@ -7,12 +7,20 @@
 
 namespace Spryker\Zed\SecurityBlockerBackofficeGui\Communication;
 
+use Spryker\Shared\Kernel\StrategyResolver;
+use Spryker\Shared\Kernel\StrategyResolverInterface;
 use Spryker\Zed\Kernel\Communication\AbstractCommunicationFactory;
 use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\MessageBuilder;
 use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\MessageBuilderInterface;
+use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\SecurityCheckAuthContextBuilder;
+use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\SecurityCheckAuthContextBuilderInterface;
+use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Checker\LoginAttemptCaptchaRequirementChecker;
+use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Checker\LoginAttemptCaptchaRequirementCheckerInterface;
 use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\EventSubscriber\SecurityBlockerBackofficeUserEventSubscriber;
+use Spryker\Zed\SecurityBlockerBackofficeGui\Communication\EventSubscriber\SecurityBlockerBackofficeUserLoginEventSubscriber;
 use Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Client\SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface;
 use Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Facade\SecurityBlockerBackofficeGuiToGlossaryFacadeInterface;
+use Spryker\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiConfig;
 use Spryker\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiDependencyProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -22,12 +30,48 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class SecurityBlockerBackofficeGuiCommunicationFactory extends AbstractCommunicationFactory
 {
+    public function createLoginProtectionEventSubscriber(): EventSubscriberInterface
+    {
+        return $this->createLoginProtectionEventSubscriberStrategyResolver()->get($this->getConfig()->getLoginProtectionStrategy());
+    }
+
+    /**
+     * @return \Spryker\Shared\Kernel\StrategyResolverInterface<\Symfony\Component\EventDispatcher\EventSubscriberInterface>
+     */
+    public function createLoginProtectionEventSubscriberStrategyResolver(): StrategyResolverInterface
+    {
+        return new StrategyResolver([
+            SecurityBlockerBackofficeGuiConfig::LOGIN_PROTECTION_STRATEGY_IP => fn (): EventSubscriberInterface => $this->createSecurityBlockerBackOfficeUserEventSubscriber(),
+            SecurityBlockerBackofficeGuiConfig::LOGIN_PROTECTION_STRATEGY_IP_AND_ACCOUNT => fn (): EventSubscriberInterface => $this->createSecurityBlockerBackofficeUserLoginEventSubscriber(),
+        ]);
+    }
+
     public function createSecurityBlockerBackOfficeUserEventSubscriber(): EventSubscriberInterface
     {
         return new SecurityBlockerBackofficeUserEventSubscriber(
             $this->getRequestStack(),
             $this->getSecurityBlockerClient(),
             $this->createMessageBuilder(),
+            $this->getConfig(),
+        );
+    }
+
+    public function createSecurityBlockerBackofficeUserLoginEventSubscriber(): EventSubscriberInterface
+    {
+        return new SecurityBlockerBackofficeUserLoginEventSubscriber(
+            $this->getRequestStack(),
+            $this->getSecurityBlockerClient(),
+            $this->createMessageBuilder(),
+            $this->getConfig(),
+            $this->createSecurityCheckAuthContextBuilder(),
+        );
+    }
+
+    public function createLoginAttemptCaptchaRequirementChecker(): LoginAttemptCaptchaRequirementCheckerInterface
+    {
+        return new LoginAttemptCaptchaRequirementChecker(
+            $this->getSecurityBlockerClient(),
+            $this->createSecurityCheckAuthContextBuilder(),
             $this->getConfig(),
         );
     }
@@ -52,5 +96,10 @@ class SecurityBlockerBackofficeGuiCommunicationFactory extends AbstractCommunica
     public function getRequestStack(): RequestStack
     {
         return $this->getProvidedDependency(SecurityBlockerBackofficeGuiDependencyProvider::SERVICE_REQUEST_STACK);
+    }
+
+    public function createSecurityCheckAuthContextBuilder(): SecurityCheckAuthContextBuilderInterface
+    {
+        return new SecurityCheckAuthContextBuilder($this->getConfig());
     }
 }

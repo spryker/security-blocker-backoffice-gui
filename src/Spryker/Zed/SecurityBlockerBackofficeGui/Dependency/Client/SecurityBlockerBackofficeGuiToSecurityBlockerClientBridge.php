@@ -34,4 +34,29 @@ class SecurityBlockerBackofficeGuiToSecurityBlockerClientBridge implements Secur
     {
         return $this->securityBlockerClient->isAccountBlocked($securityCheckAuthContextTransfer);
     }
+
+    public function checkLoginAttempt(SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): SecurityCheckAuthResponseTransfer
+    {
+        return $this->securityBlockerClient->checkLoginAttempt($securityCheckAuthContextTransfer);
+    }
+
+    public function isLoginChallengeRequired(SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): bool
+    {
+        return $this->securityBlockerClient->isLoginChallengeRequired($securityCheckAuthContextTransfer);
+    }
+
+    public function reserveLoginAttempt(SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): SecurityCheckAuthResponseTransfer
+    {
+        return $this->securityBlockerClient->reserveLoginAttempt($securityCheckAuthContextTransfer);
+    }
+
+    public function registerFailedLoginAttempt(SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): SecurityCheckAuthResponseTransfer
+    {
+        return $this->securityBlockerClient->registerFailedLoginAttempt($securityCheckAuthContextTransfer);
+    }
+
+    public function registerSuccessfulLoginAttempt(SecurityCheckAuthContextTransfer $securityCheckAuthContextTransfer): SecurityCheckAuthResponseTransfer
+    {
+        return $this->securityBlockerClient->registerSuccessfulLoginAttempt($securityCheckAuthContextTransfer);
+    }
 }

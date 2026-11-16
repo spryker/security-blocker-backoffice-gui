@@ -37,9 +37,11 @@ class SecurityBlockerBackofficeUserEventSubscriber implements EventSubscriberInt
     protected const FIELD_USERNAME = 'username';
 
     /**
+     * Runs before the CAPTCHA check of the Captcha module (priority 10), so a blocked login is answered before its CAPTCHA is used.
+     *
      * @var int
      */
-    protected const KERNEL_REQUEST_SUBSCRIBER_PRIORITY = 9;
+    protected const KERNEL_REQUEST_SUBSCRIBER_PRIORITY = 11;
 
     /**
      * @var string
@@ -51,24 +53,12 @@ class SecurityBlockerBackofficeUserEventSubscriber implements EventSubscriberInt
      */
     protected const AUTHENTICATION_FAILURE_EVENT = 'onAuthenticationFailure';
 
-    /**
-     * @var \Symfony\Component\HttpFoundation\RequestStack
-     */
     protected RequestStack $requestStack;
 
-    /**
-     * @var \Spryker\Zed\SecurityBlockerBackofficeGui\Dependency\Client\SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface
-     */
     protected SecurityBlockerBackofficeGuiToSecurityBlockerClientInterface $securityBlockerClient;
 
-    /**
-     * @var \Spryker\Zed\SecurityBlockerBackofficeGui\SecurityBlockerBackofficeGuiConfig
-     */
     protected SecurityBlockerBackofficeGuiConfig $securityBlockerBackofficeGuiConfig;
 
-    /**
-     * @var \Spryker\Zed\SecurityBlockerBackofficeGui\Communication\Builder\MessageBuilderInterface
-     */
     protected MessageBuilderInterface $messageBuilder;
 
     public function __construct(
@@ -107,11 +97,7 @@ class SecurityBlockerBackofficeUserEventSubscriber implements EventSubscriberInt
     }
 
     /**
-     * @param \Symfony\Component\HttpKernel\Event\RequestEvent $event
-     *
      * @throws \Symfony\Component\HttpKernel\Exception\HttpException
-     *
-     * @return void
      */
     public function onKernelRequest(RequestEvent $event): void
     {
@@ -152,6 +138,16 @@ class SecurityBlockerBackofficeUserEventSubscriber implements EventSubscriberInt
     {
         return (new SecurityCheckAuthContextTransfer())
             ->setType($this->securityBlockerBackofficeGuiConfig->getSecurityBlockerBackofficeUserEntityType())
-            ->setIp($request->getClientIp());
+            ->setIp($request->getClientIp())
+            ->setLoginIdentifier($this->findSubmittedUsername($request))
+            ->setIpCounterKeyStrategy($this->securityBlockerBackofficeGuiConfig->getIpCounterKeyStrategy());
+    }
+
+    protected function findSubmittedUsername(Request $request): ?string
+    {
+        $loginForm = $request->request->all()[static::FORM_NAME] ?? null;
+        $username = is_array($loginForm) ? ($loginForm[static::FIELD_USERNAME] ?? null) : null;
+
+        return is_string($username) ? $username : null;
     }
 }

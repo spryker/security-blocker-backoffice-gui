@@ -4,15 +4,25 @@
     <transfer name="SecurityCheckAuthResponse">
         <property name="blockedFor" type="int"/>
         <property name="isBlocked" type="bool"/>
+        <property name="isChallengeRequired" type="bool"/>
     </transfer>
 
     <transfer name="SecurityCheckAuthContext">
         <property name="type" type="string"/>
         <property name="account" type="string"/>
         <property name="ip" type="string"/>
+        <property name="realm" type="string"/>
+        <property name="loginIdentifier" type="string"/>
+        <property name="ipCounterKeyStrategy" type="string"/>
     </transfer>
 
     <transfer name="Locale">
+    </transfer>
+
+    <transfer name="CaptchaRequirementRequest" strict="true">
+        <property name="context" type="string"/>
+        <property name="ip" type="string"/>
+        <property name="loginIdentifier" type="string"/>
     </transfer>
 
 </transfers>
